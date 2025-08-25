@@ -143,6 +143,9 @@ function libxml2.xmlNewParserCtxt()
   end
   print_dbg("xmlNewParserCtxt: ", context)
   return ffi.gc(context, function(p)
+    if p.myDoc and p.myDoc ~= ffi.NULL then
+      xml2.xmlFreeDoc(p.myDoc)
+    end
     print_dbg("xmlFreeParserCtxt: ", p)
     xml2.xmlFreeParserCtxt(p)
   end)
@@ -153,7 +156,14 @@ function libxml2.xmlCreatePushParserCtxt(filename)
   if context == ffi.NULL then
     return nil
   end
-  return ffi.gc(context, xml2.xmlFreeParserCtxt)
+  print_dbg("xmlCreatePushParserCtxt: ", context)
+  return ffi.gc(context, function(p)
+    if p.myDoc and p.myDoc ~= ffi.NULL then
+      xml2.xmlFreeDoc(p.myDoc)
+    end
+    print_dbg("xmlFreeParserCtxt: ", p)
+    xml2.xmlFreeParserCtxt(p)
+  end)
 end
 
 local function parse_xml_parse_options(value, default)
